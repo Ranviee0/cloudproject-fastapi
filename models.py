@@ -19,7 +19,7 @@ class Config(Base):
     __tablename__ = 'Config'
 
     username = Column(String(255), primary_key=True, nullable=False, autoincrement=True)
-    Monitoring_status = Column(Boolean, nullable=True)
+    Monitoring_status = Column(Boolean, nullable=False)
     streaming_URL = Column(Text, nullable=False)
     email = Column(String(255))
 

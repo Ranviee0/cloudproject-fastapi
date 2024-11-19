@@ -57,10 +57,10 @@ def create_data(data: ResultModel, db: db_dependency):
 
 from fastapi import HTTPException
 
-@app.delete("/delete-data/{email}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_data_by_email(email: int, db: db_dependency):
-    # Find the data entry by email
-    db_data = db.query(models.Result).filter(models.Result.email == email).first()
+@app.delete("/delete-data/{result_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_data_by_result_id(result_id: int, db: db_dependency):
+    # Find the data entry by result_id
+    db_data = db.query(models.Result).filter(models.Result.result_id == result_id).first()
     if not db_data:
         raise HTTPException(status_code=404, detail="Data not found")
     
@@ -114,9 +114,9 @@ def get_user_by_username(username: int, db: db_dependency):
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
-@app.get("/get-data/{email}", response_model=ResultModel)
-def get_data_by_email(email: int, db: db_dependency):
-    data_entry = db.query(models.Result).filter(models.Result.email == email).first()
+@app.get("/get-data/{result_id}", response_model=ResultModel)
+def get_data_by_result_id(result_id: int, db: db_dependency):
+    data_entry = db.query(models.Result).filter(models.Result.result_id == result_id).first()
     if not data_entry:
         raise HTTPException(status_code=404, detail="Data entry not found")
     return data_entry
@@ -145,9 +145,9 @@ def update_user(username: int, user_update: ConfigModel, db: db_dependency):
     db.refresh(user)
     return user
 
-@app.put("/update-data/{email}", response_model=ResultModel)
-def update_data(email: int, data_update: ResultModel, db: db_dependency):
-    data_entry = db.query(models.Result).filter(models.Result.email == email).first()
+@app.put("/update-data/{result_id}", response_model=ResultModel)
+def update_data(result_id: int, data_update: ResultModel, db: db_dependency):
+    data_entry = db.query(models.Result).filter(models.Result.result_id == result_id).first()
     if not data_entry:
         raise HTTPException(status_code=404, detail="Data entry not found")
     

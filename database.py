@@ -7,7 +7,7 @@ username = "admin"
 password = "group9login"
 host = "localhost"
 port = 3307
-database = "new_schema"
+database = "CCTV_service"
 
 URL_DATABASE = f"mysql+pymysql://{username}:{password}@{host}:{port}/{database}"
 

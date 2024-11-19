@@ -18,25 +18,26 @@ def get_db():
         db.close()
 
 # Pydantic model for the request body
-class UserModel(BaseModel):
-    status: str | None = None
-    url: str
-    resultid: str
+class ConfigModel(BaseModel):
+    Monitoring_status: bool | None = None
+    streaming_URL: str | None = None
+    email: str
 
-class DataModel(BaseModel):
-    datetime: datetime
-    config: str | None = None
-    result: int
-    image: str
-    userid: int
+class ResultModel(BaseModel):
+    username: str | None = None
+    DATE_TIME: datetime | None = None
+    config: str 
+    result: int | None = None
+    processed_detection_image: str
+    
 
 db_dependency = Annotated[Session, Depends(get_db)]
 
 # Create a user using the variables
 @app.post("/create-user", status_code=status.HTTP_201_CREATED)
-def create_user(user: UserModel, db: db_dependency):
+def create_user(user: ConfigModel, db: db_dependency):
     # Create a new user using the variables
-    db_user = models.User(**user.model_dump())
+    db_user = models.Config(**user.model_dump())
     db.add(db_user)
     db.commit()
     db.refresh(db_user)  # Refresh to get the generated ID and other fields
@@ -45,9 +46,9 @@ def create_user(user: UserModel, db: db_dependency):
 
 # Create a data using the variables
 @app.post("/create-data", status_code=status.HTTP_201_CREATED)
-def create_data(data: DataModel, db: db_dependency):
+def create_data(data: ResultModel, db: db_dependency):
     # Create a new user using the variables
-    db_data = models.Data(**data.model_dump())
+    db_data = models.Result(**data.model_dump())
     db.add(db_data)
     db.commit()
     db.refresh(db_data)  # Refresh to get the generated ID and other fields
@@ -56,10 +57,10 @@ def create_data(data: DataModel, db: db_dependency):
 
 from fastapi import HTTPException
 
-@app.delete("/delete-data/{resultid}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_data_by_resultid(resultid: int, db: db_dependency):
-    # Find the data entry by resultid
-    db_data = db.query(models.Data).filter(models.Data.resultid == resultid).first()
+@app.delete("/delete-data/{email}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_data_by_email(email: int, db: db_dependency):
+    # Find the data entry by email
+    db_data = db.query(models.Result).filter(models.Result.email == email).first()
     if not db_data:
         raise HTTPException(status_code=404, detail="Data not found")
     
@@ -68,24 +69,24 @@ def delete_data_by_resultid(resultid: int, db: db_dependency):
     db.commit()
     return {"message": "Data deleted successfully"}
 
-@app.delete("/delete-data-by-user/{userid}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_data_by_userid(userid: int, db: db_dependency):
-    # Find all data entries by userid
-    db_data = db.query(models.Data).filter(models.Data.userid == userid)
+@app.delete("/delete-data-by-user/{username}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_data_by_username(username: int, db: db_dependency):
+    # Find all data entries by username
+    db_data = db.query(models.Result).filter(models.Result.username == username)
     
-    # Check if any data entries exist for the provided userid
+    # Check if any data entries exist for the provided username
     if db_data.count() == 0:
         raise HTTPException(status_code=404, detail="No data found for this user")
 
-    # Delete all data entries for the specified userid
+    # Delete all data entries for the specified username
     db_data.delete(synchronize_session=False)
     db.commit()
     return {"message": "Data entries deleted successfully"}
 
-@app.delete("/delete-user/{userid}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_user(userid: int, db: db_dependency):
+@app.delete("/delete-user/{username}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_user(username: int, db: db_dependency):
     # Check if there are any data entries for this user
-    data_entries = db.query(models.Data).filter(models.Data.userid == userid).all()
+    data_entries = db.query(models.Result).filter(models.Result.username == username).all()
     
     # If there are data entries, return a message
     if data_entries:
@@ -94,8 +95,8 @@ def delete_user(userid: int, db: db_dependency):
             detail="User has associated data entries. Please call the 'delete_data_by_userid' endpoint first."
         )
     
-    # Find the user by userid
-    user = db.query(models.User).filter(models.User.userid == userid).first()
+    # Find the user by username
+    user = db.query(models.Config).filter(models.Config.username == username).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
@@ -106,33 +107,33 @@ def delete_user(userid: int, db: db_dependency):
 
 from fastapi import HTTPException
 
-@app.get("/get-user/{userid}", response_model=UserModel)
-def get_user_by_userid(userid: int, db: db_dependency):
-    user = db.query(models.User).filter(models.User.userid == userid).first()
+@app.get("/get-user/{username}", response_model=ConfigModel)
+def get_user_by_username(username: int, db: db_dependency):
+    user = db.query(models.Config).filter(models.Config.username == username).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
-@app.get("/get-data/{resultid}", response_model=DataModel)
-def get_data_by_resultid(resultid: int, db: db_dependency):
-    data_entry = db.query(models.Data).filter(models.Data.resultid == resultid).first()
+@app.get("/get-data/{email}", response_model=ResultModel)
+def get_data_by_email(email: int, db: db_dependency):
+    data_entry = db.query(models.Result).filter(models.Result.email == email).first()
     if not data_entry:
         raise HTTPException(status_code=404, detail="Data entry not found")
     return data_entry
 
-@app.get("/get-last-24-data", response_model=List[DataModel])
+@app.get("/get-last-24-data", response_model=List[ResultModel])
 def get_last_24_data(db: db_dependency):
     data_entries = (
-        db.query(models.Data)
-        .order_by(models.Data.datetime.desc())
+        db.query(models.Result)
+        .order_by(models.Result.datetime.desc())
         .limit(24)
         .all()
     )
     return data_entries
 
-@app.put("/update-user/{userid}", response_model=UserModel)
-def update_user(userid: int, user_update: UserModel, db: db_dependency):
-    user = db.query(models.User).filter(models.User.userid == userid).first()
+@app.put("/update-user/{username}", response_model=ConfigModel)
+def update_user(username: int, user_update: ConfigModel, db: db_dependency):
+    user = db.query(models.Config).filter(models.Config.username == username).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
@@ -144,9 +145,9 @@ def update_user(userid: int, user_update: UserModel, db: db_dependency):
     db.refresh(user)
     return user
 
-@app.put("/update-data/{resultid}", response_model=DataModel)
-def update_data(resultid: int, data_update: DataModel, db: db_dependency):
-    data_entry = db.query(models.Data).filter(models.Data.resultid == resultid).first()
+@app.put("/update-data/{email}", response_model=ResultModel)
+def update_data(email: int, data_update: ResultModel, db: db_dependency):
+    data_entry = db.query(models.Result).filter(models.Result.email == email).first()
     if not data_entry:
         raise HTTPException(status_code=404, detail="Data entry not found")
     

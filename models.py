@@ -1,28 +1,28 @@
-from sqlalchemy import Column, DateTime, Integer, String, Text, ForeignKey
+from sqlalchemy import Column, DateTime, Integer, String, Text, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from database import Base
 
-class Data(Base):
-    __tablename__ = 'data'
+class Result(Base):
+    __tablename__ = 'Result'
 
-    resultid = Column(Integer, primary_key=True, autoincrement=True)
-    datetime = Column(DateTime, nullable=False)
-    config = Column(String(512), nullable=True)
+    result_id = Column(Integer, primary_key=True, nullable=False,  autoincrement=True)
+    username = Column(String(255), ForeignKey('Config.username'), nullable=False)
+    DATE_TIME = Column(DateTime, nullable=False)
+    config = Column(String(255), nullable=True)
     result = Column(Integer, nullable=False)
-    image = Column(Text, nullable=False)
-    userid = Column(Integer, ForeignKey('users.userid'), nullable=False)
+    processed_detection_image = Column(Text, nullable=False)
 
     # Relationship to the User table to access the related user
-    user = relationship("User", back_populates="data_entries")
+    user = relationship("Config", back_populates="data_entries")
 
-class User(Base):
-    __tablename__ = 'users'
+class Config(Base):
+    __tablename__ = 'Config'
 
-    userid = Column(Integer, primary_key=True, autoincrement=True)
-    status = Column(String(255), nullable=True)
-    url = Column(Text, nullable=False)
-    resultid = Column(String(255), nullable=False)
+    username = Column(String(255), primary_key=True, nullable=False, autoincrement=True)
+    Monitoring_status = Column(Boolean, nullable=True)
+    streaming_URL = Column(Text, nullable=False)
+    email = Column(String(255))
 
     # Relationship to the Data table for accessing related data entries
-    data_entries = relationship("Data", back_populates="user")
+    data_entries = relationship("Result", back_populates="user")
 

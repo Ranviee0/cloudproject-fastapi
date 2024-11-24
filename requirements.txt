@@ -1,5 +1,5 @@
 sqlalchemy
-fastapi
+fastapi[standard]
 pydantic
 typing
 uvicorn

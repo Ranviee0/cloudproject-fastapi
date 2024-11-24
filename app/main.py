@@ -1,6 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import download_routes, create_routes, delete_routes, read_routes, update_routes
+import app.routes.download_routes as download_routes
+import app.routes.create_routes as create_routes
+import app.routes.delete_routes as delete_routes
+import app.routes.read_routes as read_routes
+import app.routes.update_routes as update_routes
 
 app = FastAPI()
 

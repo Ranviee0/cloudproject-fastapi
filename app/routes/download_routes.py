@@ -1,15 +1,13 @@
-from fastapi import FastAPI, HTTPException, Depends, APIRouter, Depends
+from fastapi import HTTPException, Depends, APIRouter, Depends
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
-from typing import Annotated, List
-import models
-from database import engine, SessionLocal
 from sqlalchemy.orm import Session
-from fastapi.middleware.cors import CORSMiddleware
-from dependencies import get_db
 import base64
 import io
 import zipfile
+
+import app.models as models
+from app.dependencies import get_db
+
 
 router = APIRouter()
 

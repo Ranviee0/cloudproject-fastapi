@@ -5,13 +5,12 @@ from sqlalchemy.ext.declarative import declarative_base
 
 # Read environment variables for database configuration
 username = "admin"
-password = "amogus"
-host = "localhost"
-port = 3306
+password = "amogu"
+host = "localhost:3306"
 database = "CCTV_service"
 
 # Database URL
-URL_DATABASE = f"mysql+pymysql://{username}:{password}@{host}:{port}/{database}"
+URL_DATABASE = f"mysql+pymysql://{username}:{password}@{host}/{database}"
 
 # Create engine and session
 engine = create_engine(URL_DATABASE)

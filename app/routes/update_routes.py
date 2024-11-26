@@ -12,7 +12,7 @@ class ConfigUpdateModel(BaseModel):
 
 @router.put("/config/{username}", response_model=ConfigUpdateModel)
 def update_config(
-    username: str, 
+    username: str,
     update_data: ConfigUpdateModel, 
     db: Session = Depends(get_db)
 ):
@@ -29,3 +29,24 @@ def update_config(
     db.commit()
     db.refresh(user)
     return user
+
+@router.put("/status/{username}")
+def update_status(
+    username: str,
+    status: int,
+    db: Session = Depends(get_db)
+):
+    # Check if the user exists
+    user = db.query(Config).filter(Config.username == username).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Update the Monitoring_status field
+    user.Monitoring_status = status
+
+    # Commit and refresh
+    db.commit()
+    db.refresh(user)
+    return {"username": username, "Monitoring_status": user.Monitoring_status}
+
+    

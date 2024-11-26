@@ -60,6 +60,7 @@ def get_config(username: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Config not found")
     return config
 
+
 @router.get("/results/{username}", response_model=List[ResultModel])
 def get_selected_results(username:str, db: Session = Depends(get_db)):
     # Query specific columns from the Result table
@@ -78,3 +79,11 @@ def get_selected_results(username:str, db: Session = Depends(get_db)):
         }
         for row in results
     ]
+
+@router.get("/status/{username}")
+def get_monitoring_status(username: str, db: Session = Depends(get_db)):
+    # Query the Monitoring_status column for the specified user
+    monitoring_status = db.query(Config.Monitoring_status).filter(Config.username == username).scalar()
+    if monitoring_status is None:
+        raise HTTPException(status_code=404, detail="User or Monitoring status not found")
+    return {"username": username, "Monitoring_status": monitoring_status}

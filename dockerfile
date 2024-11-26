@@ -5,7 +5,7 @@ WORKDIR /code
 # Define build arguments with default values
 ARG DB_USERNAME=admin
 ARG DB_PASSWORD=group9login
-ARG DB_HOST=localhost:3306
+ARG DB_HOST=des424-g09-rds.cpqayo04ersh.ap-southeast-1.rds.amazonaws.com:3306
 ARG DB_DATABASE=CCTV_service
 
 COPY ./requirements.txt /code/requirements.txt

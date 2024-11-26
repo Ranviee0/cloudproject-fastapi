@@ -5,7 +5,7 @@ from sqlalchemy.ext.declarative import declarative_base
 
 # Read environment variables for database configuration
 username = "admin"
-password = "amogu"
+password = "amogus"
 host = "localhost:3306"
 database = "CCTV_service"
 
